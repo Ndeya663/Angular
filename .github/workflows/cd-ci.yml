@@ -1,41 +1,31 @@
-name: consstruire et deployer l'application Angular sur Docker Hub
+name: Build and Push Angular App to Docker Hub
 
 on:
   push:
     branches:
-      - main
-  workflow_dispatch:
+      - main   # change en master si ta branche par défaut est master
 
 jobs:
-  build-and-push:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      # 1. Récupérer le code source
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
-
-      - name: Install Angular CLI
-        run: npm install -g @angular/cli
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build Angular
-        run: ng build --configuration production
-
+      # 2. Login à Docker Hub
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
-            username: ${{ secrets.DOCKERHUB_USERNAME }}
-            password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build Docker image
-        run: docker build -t amyf663/my-angular-app:latest .
-
-      - name: Push Docker image
-        run: docker push amyf663/my-angular-app:latest
+      # 3. Builder et pousser l'image
+      - name: Build and Push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: amyf663/angular-app:latest

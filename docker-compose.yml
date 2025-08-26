@@ -1,0 +1,21 @@
+
+services:
+  angular-app:
+    build: .
+    image: amyf663/angular-app:latest
+    container_name: angular-app
+    ports:
+      - "80:80"
+    networks:
+      - angular-network
+    volumes:
+      - app-data:/usr/share/nginx/html
+    restart: unless-stopped
+
+volumes:
+  app-data:
+    driver: local
+
+networks:
+  angular-network:
+    driver: bridge
